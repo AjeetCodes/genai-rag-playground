@@ -16,7 +16,7 @@ api_key = os.getenv('GEMINI_API_KEY')
 #UI part using streamlit
 st.title("Fully Expanded Streamlit YouTube Chat App")
 # st.header("YouTube Chat APP")
-youtube_url = st.text_input("Enter YouTube URL")
+youtube_url = st.text_input("Enter YouTube URL", placeholder="Enter Youtube Video URL")
 
 # st.sidebar.title("Gen AI Playground")
 st.set_page_config(page_title="GenAI RAG Playground", layout="wide")

@@ -25,7 +25,7 @@ qa_chain = RetrievalQA.from_chain_type(
     retriever=retriever,
     return_source_documents=True  # Optional: show source context
 )
-query = st.text_input("Type your question here:")
+query = st.text_input("Type your question here:", placeholder="Write your query")
 if st.button("Submit") and query:
     result = qa_chain(query)
     
