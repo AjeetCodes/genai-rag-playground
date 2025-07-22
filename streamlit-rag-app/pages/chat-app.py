@@ -4,9 +4,11 @@ from langchain.chains import RetrievalQA
 from dotenv import load_dotenv
 import os
 from langchain.vectorstores import Chroma
-
+from chromadb.config import Settings
+from chromadb import Client
 load_dotenv()
 api_key = os.getenv('GEMINI_API_KEY')
+# Client(Settings(tenant="default_tenant", database="default"))
 
 st.set_page_config(layout="wide")
 st.title("📺 YouTube Chat App")
@@ -14,7 +16,7 @@ st.write("Paste a YouTube link and chat with the video transcript.")
 # Load Chroma vectorstore
 vectorstore = Chroma(
     persist_directory="./chroma_store",  # Same dir used during saving
-    embedding_function=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embedding_function=GoogleGenerativeAIEmbeddings(model="models/embedding-001"),
 )
 # Create Retriever
 retriever = vectorstore.as_retriever()
