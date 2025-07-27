@@ -15,7 +15,7 @@ uploaded_file = st.file_uploader("Upload An Image", type=['png', 'jpg', 'jpeg'])
 user_query = st.text_input("Write your query related to an uploaded image", placeholder="Write your query related to an image")
 language_prompts = {
     "Hindi" : "इसका उत्तर हिंदी में दें:",
-    "Engilist" : "Answer this in English:",
+    "English" : "Answer this in English:",
     "French": "Répondez à ceci en français :",
     "Spanish": "Responde esto en español:"
 }

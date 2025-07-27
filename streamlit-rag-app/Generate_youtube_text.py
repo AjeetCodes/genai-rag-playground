@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain.vectorstores import Chroma
+from langchain.document_loaders import PyMuPDFLoader
 # from langchain.retrievers import VectorStoreRetriever
 from langchain.chains import RetrievalQA
-
+import json
 load_dotenv()
 api_key = os.getenv('GEMINI_API_KEY')
 
@@ -37,30 +38,58 @@ def generate_transcript(yt_id):
         return fullTxt
     except Exception as e:
         return f"Error fetching transcript -: {str(e)}"
-    
-if st.button("Generate Text", type='primary') and youtube_url:
-    yt_id = get_yt_video_id(youtube_url)
-    generated_txt = generate_transcript(yt_id)
-    if generated_txt:
-        with st.container(border=True):
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
-            chunk = text_splitter.split_text(generated_txt)
-            embiddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-            vectore_store = Chroma.from_texts(
-                texts=chunk,
-                embedding=embiddings,
-                persist_directory='./chroma_store'
-            )
-            res = vectore_store.persist()
-            st.success("Text from YouTube Link Generated Successfully..")
-            # st.subheader(f'Generated text')
-            st.markdown(""" 
-                <div style="margin-bottom : 15px; height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
-                    <pre style="white-space: pre-wrap;">
-                        {}
-                    </pre>
-                </div>
-            """.format(generated_txt), unsafe_allow_html=True)
-            # Load Chroma vectorstore
+
+upload_file = st.file_uploader("Upload PDF File", type=['pdf'])
+if st.button("Generate Text", type='primary'):
+    if youtube_url and youtube_url is not None:
+        yt_id = get_yt_video_id(youtube_url)
+        generated_txt = generate_transcript(yt_id)
+        if generated_txt:
+            with st.container(border=True):
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+                chunk = text_splitter.split_text(generated_txt)
+                embiddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+                vectore_store = Chroma.from_texts(
+                    texts=chunk,
+                    embedding=embiddings,
+                    persist_directory='./chroma_store'
+                )
+                res = vectore_store.persist()
+                st.success("Text from YouTube Link Generated Successfully..")
+                st.info("You can ask question from chat section in the side bar.")
+                # st.subheader(f'Generated text')
+                st.markdown(""" 
+                    <div style="margin-bottom : 15px; height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+                        <pre style="white-space: pre-wrap;">
+                            {}
+                        </pre>
+                    </div>
+                """.format(generated_txt), unsafe_allow_html=True)
+                # Load Chroma vectorstore
+    if upload_file is not None:
+        with st.spinner("Generating Text..."):
+            with open("temp.pdf", 'wb') as f:
+                f.write(upload_file.read())
+                loader = PyMuPDFLoader('temp.pdf')
+                pages = loader.load()
+                fullContent = ''
+                # print(json.dumps(str(pages)))
+                # st.write(pages[0].page_content[:500])
+                for page in pages:
+                    fullContent += page.page_content
+                # st.write(fullContent)
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+                chunk = text_splitter.split_text(fullContent)
+                embiddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+                vectore_store = Chroma.from_texts(
+                    texts=chunk,
+                    embedding=embiddings,
+                    persist_directory='./chroma_store'
+                )
+                res = vectore_store.persist()
+                st.success("Text Generated From The PDF File Successfully..")
+                st.info("You can ask question from chat section in the side bar.")
+                st.markdown(fullContent)
+          
             
             
