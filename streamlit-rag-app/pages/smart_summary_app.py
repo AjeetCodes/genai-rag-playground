@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.memory import ConversationSummaryMemory
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,6 +20,9 @@ if st.button("submit") and text:
         try:
             if response:
                 st.subheader("Response")
+                memory = ConversationSummaryMemory(llm=llm)
+                memory.save_context(inputs={"input" : text}, outputs={"output" : response.content})
+                print('summary memory', memory.load_memory_variables({}))
                 with st.container(border=True):
                     st.markdown("""
                         {}
