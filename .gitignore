@@ -1,3 +1,4 @@
 app-env/
 .env_sample
-chroma_store/*
+# Ignore all contents in chroma_store folder
+chroma_store/
